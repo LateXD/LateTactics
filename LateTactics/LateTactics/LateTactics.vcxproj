@@ -90,6 +90,7 @@
     <Image Include="..\Graphics\EditorUpDown.png" />
     <Image Include="..\Graphics\FileTools.png" />
     <Image Include="..\Graphics\Outline.png" />
+    <Image Include="..\Graphics\PaintTools.png" />
     <Image Include="..\Graphics\Selection.png" />
     <Image Include="..\Graphics\Tiles.png" />
     <Image Include="..\Graphics\Tree.png" />

@@ -31,7 +31,7 @@ public:
 	sf::Sprite getTransparentTile();
 
 private:
-	int amountOfTextures = 9, scale = 1;
+	int amountOfTextures = 10, scale = 1;
 	sf::Vector2i pictureSize;
 	sf::Vector3i mapSize, mapFix, spriteMovement = { 14, 7, 7 };
 	sf::Sprite tileSprite;
