@@ -18,6 +18,8 @@ public:
 	void updateLayer();
 	void switchLayer();
 	void emptyLayer();
+	void copyLayer();
+	void paintBucket();
 
 private:
 	Map *map;

@@ -177,6 +177,10 @@ void MapEditor::handleInput()
 		{
 			layersShown--;
 		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C) && currentLayerNumber < mapSize.z - 1)
+		{
+			copyLayer();
+		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
 			game->popState();
@@ -273,4 +277,22 @@ void MapEditor::emptyLayer() // Empties the current layer
 			currentLayer[i][j].setTextureRect(sf::IntRect(0 * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
 		}
 	}
+}
+
+void MapEditor::copyLayer() // Copies the current layer to the layer above it
+{
+	for (int j = 0; j < mapSize.y; j++)
+	{
+		for (int i = 0; i < mapSize.x; i++)
+		{
+			map->setTextureRect(i, j, currentLayerNumber + 1, map->getTextureNumber(i ,j ,currentLayerNumber));
+		}
+	}
+	currentLayerNumber++;
+	switchLayer();
+}
+
+void MapEditor::paintBucket() // Works like paint bucket tool in softwares like Paint
+{
+	
 }
