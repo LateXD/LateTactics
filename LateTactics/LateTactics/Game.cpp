@@ -69,7 +69,7 @@ void Game::gameLoop()
 			peekState()->handleInput();
 		}
 		peekState()->update(dt);
-		window.clear(sf::Color::White);
+		window.clear(sf::Color(200, 210, 255, 255));
 		peekState()->draw(dt);
 		window.display();
 	}

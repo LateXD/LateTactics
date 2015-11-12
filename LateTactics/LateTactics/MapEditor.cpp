@@ -29,7 +29,7 @@ void MapEditor::onInitialize()
 	texture.loadFromFile("..\\Graphics\\EditorUpDown.png");
 	tileBox.setTexture(texture);
 	tileBox.scale(2,2);
-	tileBox.setPosition(game->window.getSize().x - tileBox.getGlobalBounds().width, 0);
+	tileBox.setPosition(game->window.getSize().x - tileBox.getGlobalBounds().width, game->window.getSize().y - tileBox.getGlobalBounds().height);
 
 	topTile = map->getSprite(0, 0, 0);
 	topTile.scale(2, 2);
@@ -64,9 +64,24 @@ void MapEditor::onInitialize()
 	paintToolTexture.loadFromFile("..\\Graphics\\PaintTools.png");
 	paintTools.setTexture(paintToolTexture);
 	paintTools.setScale(2, 2);
+	paintTools.setPosition(game->window.getSize().x - paintTools.getGlobalBounds().width, 0);
 	currentPaintToolMark.setSize(sf::Vector2f(paintTools.getGlobalBounds().width, paintTools.getGlobalBounds().height / 2));
 	currentPaintToolMark.setFillColor(sf::Color(50,50,50,50));
 	currentPaintToolMark.setPosition(paintTools.getPosition().x, paintTools.getPosition().y);
+
+	// Making of the bar that shows which layers are currently visible
+	//-------------------------
+	layersShownBox.setFillColor(sf::Color::Green);
+	layersShownBox.setSize(sf::Vector2f(20, 20));
+	layersShownBox.setOutlineColor(sf::Color(50,50,50,255));
+	layersShownBox.setOutlineThickness(1);
+	layersShownBox.setPosition(1, 1 + layersShownBox.getGlobalBounds().height * (mapSize.z - 1));
+
+	for (int i = 0; i < mapSize.z; i++)
+	{
+		layersShownBoxes.push_back(layersShownBox);
+		layersShownBox.move(0, -layersShownBox.getGlobalBounds().height);
+	}
 
 	// Setting up views
 	//-------------------------
@@ -163,16 +178,38 @@ void MapEditor::handleInput()
 	//-------------------------
 	game->window.setView(interfaceView);
 	mouse = game->window.mapPixelToCoords(sf::Mouse::getPosition(game->window));
-
-	for (int i = 0; i < toolBar.size(); i++)
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
-		if (mouse.x > toolBar[i].getPosition().x && mouse.x < toolBar[i].getPosition().x + toolBar[i].getGlobalBounds().width &&
-			mouse.y > toolBar[i].getPosition().y && mouse.y < toolBar[i].getPosition().y + toolBar[i].getGlobalBounds().height)
+		for (int i = 0; i < toolBar.size(); i++)
 		{
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+			if (mouse.x > toolBar[i].getPosition().x && mouse.x < toolBar[i].getPosition().x + toolBar[i].getGlobalBounds().width &&
+				mouse.y > toolBar[i].getPosition().y && mouse.y < toolBar[i].getPosition().y + toolBar[i].getGlobalBounds().height)
 			{
 				currentToolMark.setPosition(toolBar[i].getPosition());
 				currentTool = i;
+			}
+		}
+	}
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		for (int i = 0; i < layersShownBoxes.size(); i++)
+		{
+			if (mouse.x > layersShownBoxes[i].getPosition().x && mouse.x < layersShownBoxes[i].getPosition().x + layersShownBoxes[i].getGlobalBounds().width &&
+				mouse.y > layersShownBoxes[i].getPosition().y && mouse.y < layersShownBoxes[i].getPosition().y + layersShownBoxes[i].getGlobalBounds().height)
+			{
+				layersShown = i + 1;
+				for (int j = 0; j < layersShownBoxes.size(); j++)
+				{
+					if (j < layersShown)
+					{
+						layersShownBoxes[j].setFillColor(sf::Color::Green);
+					}
+					else
+					{
+						layersShownBoxes[j].setFillColor(sf::Color::Black);
+					}
+				}
 			}
 		}
 	}
@@ -247,7 +284,7 @@ void MapEditor::draw(const float dt)
 				{
 					game->window.draw(map->getSprite(i, j, k));
 				}
-				if (layersShown < mapSize.z && map->getTextureNumber(i, j, k + 1) != 0 && map->getTextureNumber(i, j, k) != 0)
+				if (layersShown < mapSize.z && k == layersShown - 1 && map->getTextureNumber(i, j, k + 1) != 0 && map->getTextureNumber(i, j, k) != 0)
 				{
 					hiddenTile.setPosition(map->getSpritePosition(i, j, k));
 					game->window.draw(hiddenTile);
@@ -282,6 +319,11 @@ void MapEditor::draw(const float dt)
 	game->window.draw(currentToolMark);
 	game->window.draw(paintTools);
 	game->window.draw(currentPaintToolMark);
+
+	for (int i = 0; i < layersShownBoxes.size(); i++)
+	{
+		game->window.draw(layersShownBoxes[i]);
+	}
 }
 
 void MapEditor::updateLayer() // Updates the layer, used while initializing and when the map is rotated

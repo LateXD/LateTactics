@@ -26,11 +26,12 @@ private:
 	int currentLayerNumber = 0, layersShown, spriteNum, currentTool = 1, currentPaintTool = 1;
 	sf::Vector2f mouse;
 	sf::Vector3i mapSize = { 20, 20, 20 }; // Keep mapSize.x and mapSize.y as the same number to avoid problems with rotation
-	sf::RectangleShape currentToolMark, currentPaintToolMark;
+	sf::RectangleShape currentToolMark, currentPaintToolMark, layersShownBox;
 	sf::Sprite hiddenTile, topTile, bottomTile, tileBox, paintTools;
 	sf::Texture texture, paintToolTexture;
 	sf::View isometricView, layerView, interfaceView;
 	std::vector<sf::Sprite> toolBar;
+	std::vector<sf::RectangleShape> layersShownBoxes;
 	std::vector<std::vector<sf::Sprite>> currentLayer;
 };
 
