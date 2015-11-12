@@ -10,6 +10,7 @@
 #include <sstream>
 #include <vector>
 #include <stdlib.h> 
+#include <fstream>
 
 class Map
 {
@@ -20,7 +21,8 @@ public:
 	void rotateMapClockwise();
 	void rotateMapCounterClockwise();
 	void setTextureRect(int xPos, int yPos, int zPos, int textureNumber);
-	
+	void loadMap();
+
 	int getTextureNumber(int xPos, int yPos, int zPos);
 	int getAmountOfTextures();
 	sf::Vector2i getPictureSize();
@@ -33,7 +35,7 @@ public:
 private:
 	int amountOfTextures = 10, scale = 1;
 	sf::Vector2i pictureSize;
-	sf::Vector3i mapSize, mapFix, spriteMovement = { 14, 7, 7 };
+	sf::Vector3i mapSize, mapFix, spriteMovement = { 14, 7, 8 };
 	sf::Sprite tileSprite;
 	sf::Texture texture;
 	std::vector<std::vector<std::vector<sf::Sprite>>>tiles, tileMemory;

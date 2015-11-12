@@ -84,6 +84,57 @@ void Map::setTextureRect(int xPos, int yPos, int zPos, int textureNumber)
 	tiles[xPos][yPos][zPos].setTextureRect(sf::IntRect(textureNumber * pictureSize.x, 0, pictureSize.x, pictureSize.y));
 }
 
+void Map::loadMap()
+{
+	int mapData, position;
+	std::vector<int>mapDataVector;
+	std::ifstream myMap("..\\CustomMaps\\Map.txt");
+	if (myMap.is_open())
+	{	
+		while (myMap >> mapData)
+		{
+			mapDataVector.push_back(mapData);
+			if (myMap.peek())
+			{
+				myMap.ignore();
+			}
+		}
+
+		mapSize.x = mapDataVector[0];
+		mapSize.y = mapDataVector[1];
+		mapSize.z = mapDataVector[2];
+
+		tiles.resize(mapSize.x);
+		for (int i = 0; i < mapSize.x; i++)
+		{
+			tiles[i].resize(mapSize.y);
+			for (int j = 0; j < mapSize.y; j++)
+			{
+				tiles[i][j].resize(mapSize.z);
+			}
+		}
+
+		position = 3;
+		for (int i = 0; i < mapSize.x; i++)
+		{
+			for (int j = 0; j < mapSize.y; j++)
+			{
+				for (int k = 0; k < mapSize.z; k++)
+				{
+					setTextureRect(i, j, k, mapDataVector[mapData]);
+					mapData++;
+				}
+			}
+		}
+
+		myMap.close();
+	}
+	else
+	{
+		std::cout << "Map file couldn't be loaded." << std::endl;
+	}
+}
+
 int Map::getTextureNumber(int xPos, int yPos, int zPos)
 {
 	return tiles[xPos][yPos][zPos].getTextureRect().left / tiles[xPos][yPos][zPos].getTextureRect().width;

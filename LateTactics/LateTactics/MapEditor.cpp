@@ -256,6 +256,15 @@ void MapEditor::handleInput()
 		{
 			copyLayer();
 		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{
+			saveMap();
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::L))
+		{
+			map->loadMap();
+			updateLayer();
+		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
 			game->popState();
@@ -274,9 +283,9 @@ void MapEditor::draw(const float dt)
 	//-------------------------
 	game->window.setView(isometricView);
 
-	for (int i = 0; i < map->getMapSize().x; i++)
+	for (int i = 0; i < mapSize.x; i++)
 	{
-		for (int j = 0; j < map->getMapSize().y; j++)
+		for (int j = 0; j < mapSize.y; j++)
 		{
 			for (int k = 0; k < layersShown; k++)
 			{
@@ -408,4 +417,30 @@ void MapEditor::paintBucket(int x, int y, int tool) // Works like paint bucket t
 	}
 
 	updateLayer();
+}
+
+void MapEditor::saveMap()
+{
+	std::ofstream myMap;
+	myMap.open("..\\CustomMaps\\Map.txt");
+
+	if (myMap.is_open())
+	{
+		myMap << mapSize.x << "a" << mapSize.y << "a" << mapSize.z << "a";
+		for (int i = 0; i < mapSize.x; i++)
+		{
+			for (int j = 0; j < mapSize.y; j++)
+			{
+				for (int k = 0; k < mapSize.z; k++)
+				{
+					myMap << map->getTextureNumber(i, j, k) << "a";
+				}
+			}
+		}
+		myMap.close();
+	}
+	else
+	{
+		std::cout << "Map file couldn't be loaded." << std::endl;
+	}
 }

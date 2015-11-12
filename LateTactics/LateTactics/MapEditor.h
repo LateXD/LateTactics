@@ -4,6 +4,8 @@
 #include "GameState.h"
 #include "Map.h"
 
+#include <fstream>
+
 class MapEditor : public GameState
 {
 public:
@@ -20,6 +22,7 @@ public:
 	void emptyLayer();
 	void copyLayer();
 	void paintBucket(int x, int y, int tool);
+	void saveMap();
 
 private:
 	Map *map;
