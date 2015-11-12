@@ -121,8 +121,8 @@ void Map::loadMap()
 			{
 				for (int k = 0; k < mapSize.z; k++)
 				{
-					setTextureRect(i, j, k, mapDataVector[mapData]);
-					mapData++;
+					setTextureRect(i, j, k, mapDataVector[position]);
+					position++;
 				}
 			}
 		}
