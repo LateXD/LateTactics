@@ -59,6 +59,14 @@ void MapEditor::onInitialize()
 	currentToolMark.setOutlineThickness(1);
 	currentToolMark.setPosition(toolBar[currentTool].getPosition());
 
+	// Making of paint tool toolbar
+	//-------------------------
+	paintToolTexture.loadFromFile("..\\Graphics\\PaintTools.png");
+	paintTools.setTexture(paintToolTexture);
+	paintTools.setScale(2, 2);
+	currentPaintToolMark.setSize(sf::Vector2f(paintTools.getGlobalBounds().width, paintTools.getGlobalBounds().height / 2));
+	currentPaintToolMark.setFillColor(sf::Color(50,50,50,50));
+	currentPaintToolMark.setPosition(paintTools.getPosition().x, paintTools.getPosition().y);
 
 	// Setting up views
 	//-------------------------
@@ -125,13 +133,27 @@ void MapEditor::handleInput()
 
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 				{
-					currentLayer[i][j].setTextureRect(sf::IntRect(currentTool * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
-					map->setTextureRect(i, j, currentLayerNumber, currentTool);
+					if (currentPaintTool == 1)
+					{
+						currentLayer[i][j].setTextureRect(sf::IntRect(currentTool * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
+						map->setTextureRect(i, j, currentLayerNumber, currentTool);
+					}
+					else if (currentPaintTool == 2 && map->getTextureNumber(i, j, currentLayerNumber) != currentTool)
+					{
+						paintBucket(i, j, currentTool);
+					}
 				}
 				else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 				{
-					currentLayer[i][j].setTextureRect(sf::IntRect(0 * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
-					map->setTextureRect(i, j, currentLayerNumber, 0);
+					if (currentPaintTool == 1)
+					{
+						currentLayer[i][j].setTextureRect(sf::IntRect(0 * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
+						map->setTextureRect(i, j, currentLayerNumber, 0);
+					}
+					else if (currentPaintTool == 2 && map->getTextureNumber(i, j, currentLayerNumber) != 0)
+					{
+						paintBucket(i, j, 0);
+					}
 				}
 			}
 		}
@@ -145,13 +167,29 @@ void MapEditor::handleInput()
 	for (int i = 0; i < toolBar.size(); i++)
 	{
 		if (mouse.x > toolBar[i].getPosition().x && mouse.x < toolBar[i].getPosition().x + toolBar[i].getGlobalBounds().width &&
-			mouse.y >toolBar[i].getPosition().y && mouse.y < toolBar[i].getPosition().y + toolBar[i].getGlobalBounds().height)
+			mouse.y > toolBar[i].getPosition().y && mouse.y < toolBar[i].getPosition().y + toolBar[i].getGlobalBounds().height)
 		{
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
 				currentToolMark.setPosition(toolBar[i].getPosition());
 				currentTool = i;
 			}
+		}
+	}
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		if (mouse.x > paintTools.getPosition().x && mouse.x < paintTools.getPosition().x + paintTools.getGlobalBounds().width &&
+			mouse.y > paintTools.getPosition().y && mouse.y < paintTools.getPosition().y + paintTools.getGlobalBounds().height / 2)
+		{
+			currentPaintTool = 1;
+			currentPaintToolMark.setPosition(paintTools.getPosition().x, paintTools.getPosition().y);
+		}
+		else if (mouse.x > paintTools.getPosition().x && mouse.x < paintTools.getPosition().x + paintTools.getGlobalBounds().width &&
+			mouse.y > paintTools.getPosition().y + paintTools.getGlobalBounds().height / 2 && mouse.y < paintTools.getPosition().y + paintTools.getGlobalBounds().height)
+		{
+			currentPaintTool = 2;
+			currentPaintToolMark.setPosition(paintTools.getPosition().x, paintTools.getPosition().y + paintTools.getGlobalBounds().height / 2);
 		}
 	}
 
@@ -176,6 +214,10 @@ void MapEditor::handleInput()
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && layersShown > 1)
 		{
 			layersShown--;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C) && currentLayerNumber < mapSize.z - 1)
+		{
+			copyLayer();
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
@@ -238,6 +280,8 @@ void MapEditor::draw(const float dt)
 		game->window.draw(toolBar[i]);
 	}
 	game->window.draw(currentToolMark);
+	game->window.draw(paintTools);
+	game->window.draw(currentPaintToolMark);
 }
 
 void MapEditor::updateLayer() // Updates the layer, used while initializing and when the map is rotated
@@ -273,4 +317,53 @@ void MapEditor::emptyLayer() // Empties the current layer
 			currentLayer[i][j].setTextureRect(sf::IntRect(0 * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
 		}
 	}
+}
+
+void MapEditor::copyLayer() // Copies the current layer to the layer above it
+{
+	for (int j = 0; j < mapSize.y; j++)
+	{
+		for (int i = 0; i < mapSize.x; i++)
+		{
+			map->setTextureRect(i, j, currentLayerNumber + 1, map->getTextureNumber(i ,j ,currentLayerNumber));
+		}
+	}
+	currentLayerNumber++;
+	switchLayer();
+}
+
+void MapEditor::paintBucket(int x, int y, int tool) // Works like paint bucket tool in softwares like Paint
+{
+	int textureReplaced;
+	std::vector<sf::Vector2i> paintedBlock;
+	paintedBlock.push_back(sf::Vector2i(x, y));
+	textureReplaced = map->getTextureNumber(x, y, currentLayerNumber);
+
+	map->setTextureRect(paintedBlock[0].x, paintedBlock[0].y, currentLayerNumber, tool);
+	while (paintedBlock.size() != 0)
+	{
+		if (paintedBlock[0].x + 1 < mapSize.x && map->getTextureNumber(paintedBlock[0].x + 1, paintedBlock[0].y, currentLayerNumber) == textureReplaced)
+		{
+			map->setTextureRect(paintedBlock[0].x + 1, paintedBlock[0].y, currentLayerNumber, tool);
+			paintedBlock.push_back(sf::Vector2i(paintedBlock[0].x + 1, paintedBlock[0].y));
+		}
+		if (paintedBlock[0].x > 0 && map->getTextureNumber(paintedBlock[0].x - 1, paintedBlock[0].y, currentLayerNumber) == textureReplaced)
+		{
+			map->setTextureRect(paintedBlock[0].x - 1, paintedBlock[0].y, currentLayerNumber, tool);
+			paintedBlock.push_back(sf::Vector2i(paintedBlock[0].x - 1, paintedBlock[0].y));
+		}
+		if (paintedBlock[0].y + 1 < mapSize.y && map->getTextureNumber(paintedBlock[0].x, paintedBlock[0].y + 1, currentLayerNumber) == textureReplaced)
+		{
+			map->setTextureRect(paintedBlock[0].x, paintedBlock[0].y + 1, currentLayerNumber, tool);
+			paintedBlock.push_back(sf::Vector2i(paintedBlock[0].x, paintedBlock[0].y + 1));
+		}
+		if (paintedBlock[0].y > 0 && map->getTextureNumber(paintedBlock[0].x, paintedBlock[0].y - 1, currentLayerNumber) == textureReplaced)
+		{
+			map->setTextureRect(paintedBlock[0].x, paintedBlock[0].y - 1, currentLayerNumber, tool);
+			paintedBlock.push_back(sf::Vector2i(paintedBlock[0].x, paintedBlock[0].y - 1));
+		}
+		paintedBlock.erase(paintedBlock.begin() + 0);
+	}
+
+	updateLayer();
 }
