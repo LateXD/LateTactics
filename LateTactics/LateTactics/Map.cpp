@@ -43,6 +43,79 @@ Map::Map(sf::Vector3i size)
 	}
 }
 
+Map::Map(std::string filepath)
+{
+	texture.loadFromFile("..\\Graphics\\Tiles.png");
+	pictureSize = sf::Vector2i(texture.getSize().x / amountOfTextures, texture.getSize().y);
+	tileSprite.setTexture(texture);
+	tileSprite.setTextureRect(sf::IntRect(0 * pictureSize.x, 0, pictureSize.x, pictureSize.y));
+
+	int mapData, position;
+	std::vector<int>mapDataVector;
+	std::ifstream myMap(filepath);
+	if (myMap.is_open())
+	{
+		while (myMap >> mapData)
+		{
+			mapDataVector.push_back(mapData);
+			if (myMap.peek())
+			{
+				myMap.ignore();
+			}
+		}
+
+		mapSize.x = mapDataVector[0];
+		mapSize.y = mapDataVector[1];
+		mapSize.z = mapDataVector[2];
+
+		tiles.resize(mapSize.x);
+		for (int i = 0; i < mapSize.x; i++)
+		{
+			tiles[i].resize(mapSize.y);
+			for (int j = 0; j < mapSize.y; j++)
+			{
+				tiles[i][j].resize(mapSize.z);
+			}
+		}
+
+		for (int i = 0; i < mapSize.x; i++)
+		{
+			for (int j = 0; j < mapSize.y; j++)
+			{
+				mapFix.x = -spriteMovement.x * j;
+				mapFix.y = spriteMovement.y * j;
+
+				for (int k = 0; k < mapSize.z; k++)
+				{
+					mapFix.z = -spriteMovement.z * k;
+
+					tileSprite.setPosition((mapSize.x - 1) * spriteMovement.x + i * spriteMovement.x + mapFix.x, (mapSize.z - 1) * spriteMovement.z + i * spriteMovement.y + mapFix.y + mapFix.z);
+					tiles[i][j][k] = tileSprite;
+				}
+			}
+		}
+
+		position = 3;
+		for (int i = 0; i < mapSize.x; i++)
+		{
+			for (int j = 0; j < mapSize.y; j++)
+			{
+				for (int k = 0; k < mapSize.z; k++)
+				{
+					setTextureRect(i, j, k, mapDataVector[position]);
+					position++;
+				}
+			}
+		}
+
+		myMap.close();
+	}
+	else
+	{
+		std::cout << "Map file couldn't be loaded." << std::endl;
+	}
+}
+
 Map::~Map()
 {
 }

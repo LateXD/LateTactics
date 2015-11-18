@@ -16,6 +16,7 @@ class Map
 {
 public:
 	Map(sf::Vector3i size);
+	Map(std::string filepath);
 	~Map();
 
 	void rotateMapClockwise();

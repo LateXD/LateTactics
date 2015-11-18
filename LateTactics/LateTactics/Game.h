@@ -27,6 +27,8 @@ public:
 	sf::Event event;
 	sf::RenderWindow window;
 	std::stack<GameState*> states;
+
+	bool loadMap = false;
 };
 
 #endif

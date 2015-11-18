@@ -8,12 +8,21 @@ MapEditor::MapEditor(Game* g)
 
 MapEditor::~MapEditor()
 {
-	delete map;
+
 }
 
 void MapEditor::onInitialize()
 {
-	map = new Map(mapSize);
+	if (game->loadMap)
+	{
+		map = new Map("..\\CustomMaps\\Map.txt");
+		mapSize = map->getMapSize();
+		game->loadMap = false;
+	}
+	else
+	{
+		map = new Map(mapSize);
+	}
 
 	// Making of currentLayer which is used to manipulate the map
 	//-------------------------
@@ -262,11 +271,13 @@ void MapEditor::handleInput()
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::L))
 		{
-			map->loadMap();
-			updateLayer();
+			delete map;
+			game->loadMap = true;
+			game->popState();
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
+			delete map;
 			game->popState();
 		}
 	}

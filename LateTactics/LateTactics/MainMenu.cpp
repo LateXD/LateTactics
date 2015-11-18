@@ -91,7 +91,10 @@ void MainMenu::handleInput()
 
 void MainMenu::update(const float dt)
 {
-
+	if (game->loadMap)
+	{
+		game->pushState(new MapEditor(game));
+	}
 }
 
 void MainMenu::draw(const float dt)
