@@ -13,13 +13,15 @@ MapEditor::~MapEditor()
 
 void MapEditor::onInitialize()
 {
-	if (game->loadMap)
+	// Loads an empty map or previously created map depending on the bool loadMap
+	//-------------------------
+	if (game->loadMap) // Load saved map
 	{
 		map = new Map("..\\CustomMaps\\Map.txt");
 		mapSize = map->getMapSize();
 		game->loadMap = false;
 	}
-	else
+	else // Load an empty map
 	{
 		map = new Map(mapSize);
 	}
@@ -74,7 +76,7 @@ void MapEditor::onInitialize()
 	paintTools.setTexture(paintToolTexture);
 	paintTools.setScale(2, 2);
 	paintTools.setPosition(game->window.getSize().x - paintTools.getGlobalBounds().width, 0);
-	currentPaintToolMark.setSize(sf::Vector2f(paintTools.getGlobalBounds().width, paintTools.getGlobalBounds().height / 2));
+	currentPaintToolMark.setSize(sf::Vector2f(paintTools.getGlobalBounds().width, paintTools.getGlobalBounds().height / numberOfPaintTools));
 	currentPaintToolMark.setFillColor(sf::Color(50,50,50,50));
 	currentPaintToolMark.setPosition(paintTools.getPosition().x, paintTools.getPosition().y);
 
@@ -226,16 +228,16 @@ void MapEditor::handleInput()
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
 		if (mouse.x > paintTools.getPosition().x && mouse.x < paintTools.getPosition().x + paintTools.getGlobalBounds().width &&
-			mouse.y > paintTools.getPosition().y && mouse.y < paintTools.getPosition().y + paintTools.getGlobalBounds().height / 2)
+			mouse.y > paintTools.getPosition().y && mouse.y < paintTools.getPosition().y + paintTools.getGlobalBounds().height / numberOfPaintTools)
 		{
 			currentPaintTool = 1;
 			currentPaintToolMark.setPosition(paintTools.getPosition().x, paintTools.getPosition().y);
 		}
 		else if (mouse.x > paintTools.getPosition().x && mouse.x < paintTools.getPosition().x + paintTools.getGlobalBounds().width &&
-			mouse.y > paintTools.getPosition().y + paintTools.getGlobalBounds().height / 2 && mouse.y < paintTools.getPosition().y + paintTools.getGlobalBounds().height)
+			mouse.y > paintTools.getPosition().y + paintTools.getGlobalBounds().height / numberOfPaintTools && mouse.y < paintTools.getPosition().y + paintTools.getGlobalBounds().height)
 		{
 			currentPaintTool = 2;
-			currentPaintToolMark.setPosition(paintTools.getPosition().x, paintTools.getPosition().y + paintTools.getGlobalBounds().height / 2);
+			currentPaintToolMark.setPosition(paintTools.getPosition().x, paintTools.getPosition().y + paintTools.getGlobalBounds().height / numberOfPaintTools);
 		}
 	}
 
@@ -430,21 +432,21 @@ void MapEditor::paintBucket(int x, int y, int tool) // Works like paint bucket t
 	updateLayer();
 }
 
-void MapEditor::saveMap()
+void MapEditor::saveMap() // Saves the map info into a text file
 {
 	std::ofstream myMap;
 	myMap.open("..\\CustomMaps\\Map.txt");
 
 	if (myMap.is_open())
 	{
-		myMap << mapSize.x << "a" << mapSize.y << "a" << mapSize.z << "a";
+		myMap << mapSize.x << "." << mapSize.y << "." << mapSize.z << ".";
 		for (int i = 0; i < mapSize.x; i++)
 		{
 			for (int j = 0; j < mapSize.y; j++)
 			{
 				for (int k = 0; k < mapSize.z; k++)
 				{
-					myMap << map->getTextureNumber(i, j, k) << "a";
+					myMap << map->getTextureNumber(i, j, k) << ".";
 				}
 			}
 		}
