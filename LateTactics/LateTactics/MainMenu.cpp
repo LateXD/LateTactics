@@ -94,11 +94,11 @@ void MainMenu::handleInput()
 		for (int i = 0; i < menuSelectionBoxes.size(); i++)
 		{			
 			if (mouse.x > menuSelectionBoxes[i].getPosition().x - menuSelectionBoxes[i].getGlobalBounds().width / 2 && mouse.x < menuSelectionBoxes[i].getPosition().x + menuSelectionBoxes[i].getGlobalBounds().width / 2 &&
-				mouse.y > menuSelectionBoxes[i].getPosition().y - menuSelectionBoxes[i].getGlobalBounds().height / 2 && mouse.y < menuSelectionBoxes[i].getPosition().y + menuSelectionBoxes[i].getGlobalBounds().height / 2)
+				mouse.y > menuSelectionBoxes[i].getPosition().y - menuSelectionBoxes[i].getGlobalBounds().height / 6 && mouse.y < menuSelectionBoxes[i].getPosition().y + menuSelectionBoxes[i].getGlobalBounds().height - menuSelectionBoxes[i].getGlobalBounds().height / 6)
 			{
 				if (i == 0)
 				{
-
+					// Not ready yet
 				}
 				else if (i == 1)
 				{
