@@ -87,6 +87,30 @@ void MainMenu::handleInput()
 			game->window.close();
 		}
 	}
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		sf::Vector2i mouse = sf::Mouse::getPosition();
+		for (int i = 0; i < menuSelectionBoxes.size(); i++)
+		{			
+			if (mouse.x > menuSelectionBoxes[i].getPosition().x - menuSelectionBoxes[i].getGlobalBounds().width / 2 && mouse.x < menuSelectionBoxes[i].getPosition().x + menuSelectionBoxes[i].getGlobalBounds().width / 2 &&
+				mouse.y > menuSelectionBoxes[i].getPosition().y - menuSelectionBoxes[i].getGlobalBounds().height / 2 && mouse.y < menuSelectionBoxes[i].getPosition().y + menuSelectionBoxes[i].getGlobalBounds().height / 2)
+			{
+				if (i == 0)
+				{
+
+				}
+				else if (i == 1)
+				{
+					game->pushState(new MapEditor(game));
+				}
+				else if (i == 2)
+				{
+					game->window.close();
+				}
+			}
+		}
+	}
 }
 
 void MainMenu::update(const float dt)
