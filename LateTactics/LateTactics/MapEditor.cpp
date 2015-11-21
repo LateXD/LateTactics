@@ -255,17 +255,29 @@ void MapEditor::handleInput()
 			map->rotateMapClockwise();
 			updateLayer();
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && layersShown < mapSize.z)
-		{
-			layersShown++;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && layersShown > 1)
-		{
-			layersShown--;
-		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C) && currentLayerNumber < mapSize.z - 1)
 		{
 			copyLayer();
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && viewZooms.x < 3)
+		{
+			isometricView.zoom(0.5);
+			viewZooms.x++;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::X) && viewZooms.x > 0)
+		{
+			isometricView.zoom(2);
+			viewZooms.x--;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::N) && viewZooms.y < 3)
+		{
+			layerView.zoom(0.5);
+			viewZooms.y++;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::M) && viewZooms.y > 0)
+		{
+			layerView.zoom(2);
+			viewZooms.y--;
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		{
