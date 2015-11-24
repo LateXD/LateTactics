@@ -35,6 +35,21 @@ void MapEditor::onInitialize()
 	}
 	updateLayer();
 
+	lowerLayer.resize(mapSize.x);
+	for (int i = 0; i < mapSize.x; i++)
+	{
+		lowerLayer[i].resize(mapSize.y);
+	}
+
+	for (int j = 0; j < mapSize.y; j++)
+	{
+		for (int i = 0; i < mapSize.x; i++)
+		{
+			lowerLayer[i][j] = map->getSprite(i, j, currentLayerNumber);
+			lowerLayer[i][j].setPosition(i * (lowerLayer[i][j].getGlobalBounds().width + 1), j * (lowerLayer[i][j].getGlobalBounds().height + 1));
+		}
+	}
+
 	// Making of the area which shows tiles on top and under the tile which is currently pointed
 	//-------------------------
 	texture.loadFromFile("..\\Graphics\\EditorUpDown.png");
@@ -162,6 +177,14 @@ void MapEditor::handleInput()
 		{
 			layerView.zoom(2);
 			viewZooms.y--;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		{
+			showLowerLayer = true;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{
+			showLowerLayer = false;
 		}
 	}
 
@@ -390,6 +413,10 @@ void MapEditor::draw(const float dt)
 		for (int j = 0; j < map->getMapSize().y; j++)
 		{
 			game->window.draw(currentLayer[i][j]);
+			if (currentLayerNumber != 0 && showLowerLayer == true)
+			{
+				game->window.draw(lowerLayer[i][j]);
+			}
 		}
 	}
 
@@ -439,6 +466,11 @@ void MapEditor::switchLayer() // Switches to next layer
 		for (int i = 0; i < mapSize.x; i++)
 		{
 			currentLayer[i][j].setTextureRect(map->getTextureRect(i, j, currentLayerNumber));
+			if (currentLayerNumber != 0)
+			{
+				lowerLayer[i][j].setTextureRect(map->getTextureRect(i, j, currentLayerNumber - 1));
+				lowerLayer[i][j].setColor(sf::Color(255, 255, 255, 100));
+			}
 		}
 	}
 }

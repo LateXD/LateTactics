@@ -26,6 +26,7 @@ public:
 
 private:
 	Map *map;
+	bool showLowerLayer = false;
 	int currentLayerNumber = 0, layersShown, spriteNum, currentTool = 1, currentPaintTool = 1, numberOfPaintTools = 3, numberOfFileTools = 4;
 	sf::Vector2f mouse;
 	sf::Vector2i viewZooms = { 0, 0 };
@@ -36,7 +37,7 @@ private:
 	sf::View isometricView, layerView, interfaceView;
 	std::vector<sf::Sprite> toolBar, fileToolBar;
 	std::vector<sf::RectangleShape> layersShownBoxes;
-	std::vector<std::vector<sf::Sprite>> currentLayer;
+	std::vector<std::vector<sf::Sprite>> currentLayer, lowerLayer;
 };
 
 #endif
