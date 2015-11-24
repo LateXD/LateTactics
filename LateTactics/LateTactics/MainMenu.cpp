@@ -119,6 +119,11 @@ void MainMenu::update(const float dt)
 	{
 		game->pushState(new MapEditor(game));
 	}
+	if (game->emptyMap)
+	{
+		game->emptyMap = false;
+		game->pushState(new MapEditor(game));
+	}
 }
 
 void MainMenu::draw(const float dt)

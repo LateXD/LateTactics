@@ -28,7 +28,7 @@ public:
 	sf::RenderWindow window;
 	std::stack<GameState*> states;
 
-	bool loadMap = false;
+	bool loadMap = false, emptyMap = false;
 };
 
 #endif

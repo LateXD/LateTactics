@@ -70,6 +70,24 @@ void MapEditor::onInitialize()
 	currentToolMark.setOutlineThickness(1);
 	currentToolMark.setPosition(toolBar[currentTool].getPosition());
 
+	tileToolBackground.setSize(sf::Vector2f(toolBar.size() * (toolBar[0].getGlobalBounds().width + 2) - 2, toolBar[0].getGlobalBounds().height * 2));
+	tileToolBackground.setFillColor(sf::Color(240, 240, 240, 255));
+	tileToolBackground.setPosition(toolBar[0].getPosition());
+	tileToolBackground.setOutlineThickness(2);
+	tileToolBackground.setOutlineColor(sf::Color::Black);
+
+	// Making of file tool toolbar
+	//-------------------------
+	fileToolTexture.loadFromFile("..\\Graphics\\FileTools.png");
+	fileTool.setTexture(fileToolTexture);
+	fileTool.scale(sf::Vector2f(2, 2));
+	for (int i = 0; i < numberOfFileTools; i++)
+	{
+		fileTool.setTextureRect(sf::IntRect(fileToolTexture.getSize().x / numberOfFileTools * i, 0, fileToolTexture.getSize().x / numberOfFileTools, fileToolTexture.getSize().y));
+		fileToolBar.push_back(fileTool);
+		fileTool.move(fileTool.getGlobalBounds().width, 0);
+	}
+
 	// Making of paint tool toolbar
 	//-------------------------
 	paintToolTexture.loadFromFile("..\\Graphics\\PaintTools.png");
@@ -86,7 +104,7 @@ void MapEditor::onInitialize()
 	layersShownBox.setSize(sf::Vector2f(20, 20));
 	layersShownBox.setOutlineColor(sf::Color(50,50,50,255));
 	layersShownBox.setOutlineThickness(1);
-	layersShownBox.setPosition(1, 1 + layersShownBox.getGlobalBounds().height * (mapSize.z - 1));
+	layersShownBox.setPosition(1, game->window.getSize().y / 2 - layersShownBox.getGlobalBounds().height * mapSize.z / 2 + 1 + layersShownBox.getGlobalBounds().height * (mapSize.z - 1));
 
 	for (int i = 0; i < mapSize.z; i++)
 	{
@@ -107,19 +125,75 @@ void MapEditor::onInitialize()
 
 void MapEditor::handleInput()
 {
+	// Keyboard commands
+	//-------------------------
+	if (game->event.type == sf::Event::KeyPressed)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		{
+			map->rotateMapCounterClockwise();
+			updateLayer();
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		{
+			map->rotateMapClockwise();
+			updateLayer();
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C) && currentLayerNumber < mapSize.z - 1)
+		{
+			copyLayer();
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && viewZooms.x < 3)
+		{
+			isometricView.zoom(0.5);
+			viewZooms.x++;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::X) && viewZooms.x > 0)
+		{
+			isometricView.zoom(2);
+			viewZooms.x--;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::N) && viewZooms.y < 3)
+		{
+			layerView.zoom(0.5);
+			viewZooms.y++;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::M) && viewZooms.y > 0)
+		{
+			layerView.zoom(2);
+			viewZooms.y--;
+		}
+	}
+
 	// Mouse commands
 	//-------------------------
 	if (game->event.type == sf::Event::MouseWheelMoved)
 	{
-		if (game->event.mouseWheel.delta == 1 && currentLayerNumber < mapSize.z - 1)
+		if (mouse.x > 0 && mouse.x < game->window.getSize().x / 2 && mouse.y > 0 && mouse.y < game->window.getSize().y)
 		{
-			currentLayerNumber++;
-			switchLayer();
+			if (game->event.mouseWheel.delta == 1 && viewZooms.x < 3)
+			{
+				isometricView.zoom(0.5);
+				viewZooms.x++;
+			}
+			else if (game->event.mouseWheel.delta == -1 && viewZooms.x > 0)
+			{
+				isometricView.zoom(2);
+				viewZooms.x--;
+			}
 		}
-		else if (game->event.mouseWheel.delta == -1 && currentLayerNumber > 0)
+		else
 		{
-			currentLayerNumber--;
-			switchLayer();
+			if (game->event.mouseWheel.delta == 1 && currentLayerNumber < mapSize.z - 1)
+			{
+				currentLayerNumber++;
+				switchLayer();
+			}
+			else if (game->event.mouseWheel.delta == -1 && currentLayerNumber > 0)
+			{
+				currentLayerNumber--;
+				switchLayer();
+			}
 		}
 	}
 
@@ -241,58 +315,38 @@ void MapEditor::handleInput()
 		}
 	}
 
-	// Keyboard commands
-	//-------------------------
-	if (game->event.type == sf::Event::KeyPressed)
+	if (game->event.type == sf::Event::MouseButtonPressed)
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			map->rotateMapCounterClockwise();
-			updateLayer();
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		{
-			map->rotateMapClockwise();
-			updateLayer();
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C) && currentLayerNumber < mapSize.z - 1)
-		{
-			copyLayer();
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && viewZooms.x < 3)
-		{
-			isometricView.zoom(0.5);
-			viewZooms.x++;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::X) && viewZooms.x > 0)
-		{
-			isometricView.zoom(2);
-			viewZooms.x--;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::N) && viewZooms.y < 3)
-		{
-			layerView.zoom(0.5);
-			viewZooms.y++;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::M) && viewZooms.y > 0)
-		{
-			layerView.zoom(2);
-			viewZooms.y--;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-		{
-			saveMap();
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::L))
-		{
-			delete map;
-			game->loadMap = true;
-			game->popState();
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-		{
-			delete map;
-			game->popState();
+			for (int i = 0; i < fileToolBar.size(); i++)
+			{
+				if (mouse.x > fileToolBar[i].getPosition().x && mouse.x < fileToolBar[i].getPosition().x + fileToolBar[i].getGlobalBounds().width &&
+					mouse.y > fileToolBar[i].getPosition().y && mouse.y < fileToolBar[i].getPosition().y + fileToolBar[i].getGlobalBounds().height)
+				{
+					if (i == 0)
+					{
+						delete map;
+						game->emptyMap = true;
+						game->popState();
+					}
+					else if (i == 1)
+					{
+						delete map;
+						game->loadMap = true;
+						game->popState();
+					}
+					else if (i == 2)
+					{
+						saveMap();
+					}
+					else if (i == 3)
+					{
+						delete map;
+						game->popState();
+					}
+				}
+			}
 		}
 	}
 }
@@ -346,6 +400,7 @@ void MapEditor::draw(const float dt)
 	game->window.draw(tileBox);
 	game->window.draw(topTile);
 	game->window.draw(bottomTile);
+	game->window.draw(tileToolBackground);
 	for (int i = 0; i < toolBar.size(); i++)
 	{
 		game->window.draw(toolBar[i]);
@@ -357,6 +412,11 @@ void MapEditor::draw(const float dt)
 	for (int i = 0; i < layersShownBoxes.size(); i++)
 	{
 		game->window.draw(layersShownBoxes[i]);
+	}
+
+	for (int i = 0; i < numberOfFileTools; i++)
+	{
+		game->window.draw(fileToolBar[i]);
 	}
 }
 
