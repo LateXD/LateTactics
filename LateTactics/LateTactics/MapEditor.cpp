@@ -226,31 +226,35 @@ void MapEditor::handleInput()
 					bottomTile.setTextureRect(sf::IntRect(0 * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
 				}
 
-				if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left) || sf::Mouse::isButtonPressed(sf::Mouse::Right))
 				{
-					if (currentPaintTool == 1)
+					if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 					{
-						currentLayer[i][j].setTextureRect(sf::IntRect(currentTool * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
-						map->setTextureRect(i, j, currentLayerNumber, currentTool);
+						if (currentPaintTool == 1 && map->getTextureNumber(i, j, currentLayerNumber) != currentTool)
+						{
+							storeToStack(i, j);
+							currentLayer[i][j].setTextureRect(sf::IntRect(currentTool * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
+							map->setTextureRect(i, j, currentLayerNumber, currentTool);
+						}
+						else if (currentPaintTool == 2 && map->getTextureNumber(i, j, currentLayerNumber) != currentTool)
+						{
+							paintBucket(i, j, currentTool);
+						}
 					}
-					else if (currentPaintTool == 2 && map->getTextureNumber(i, j, currentLayerNumber) != currentTool)
+					else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 					{
-						paintBucket(i, j, currentTool);
+						if (currentPaintTool == 1 && map->getTextureNumber(i, j, currentLayerNumber) != 0)
+						{
+							storeToStack(i, j);
+							currentLayer[i][j].setTextureRect(sf::IntRect(0 * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
+							map->setTextureRect(i, j, currentLayerNumber, 0);
+						}
+						else if (currentPaintTool == 2 && map->getTextureNumber(i, j, currentLayerNumber) != 0)
+						{
+							paintBucket(i, j, 0);
+						}
 					}
 				}
-				else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
-				{
-					if (currentPaintTool == 1)
-					{
-						currentLayer[i][j].setTextureRect(sf::IntRect(0 * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
-						map->setTextureRect(i, j, currentLayerNumber, 0);
-					}
-					else if (currentPaintTool == 2 && map->getTextureNumber(i, j, currentLayerNumber) != 0)
-					{
-						paintBucket(i, j, 0);
-					}
-				}
-				pushToStack();
 			}
 		}
 	}
@@ -370,13 +374,11 @@ void MapEditor::handleInput()
 					}
 					else if (i == 4)
 					{
-						undo();
-						updateLayer();
+						undoOrRedo(true);
 					}
 					else if (i == 5)
 					{
-						map->rotateMapClockwise();
-						updateLayer();
+						undoOrRedo(false);
 					}
 					else if (i == 6)
 					{
@@ -587,50 +589,57 @@ void MapEditor::saveMap() // Saves the map info into a text file
 	}
 }
 
-void MapEditor::pushToStack()
+void MapEditor::storeToStack(int x, int y)
 {
-	if (undoRedo.size() > 9)
+	if (undoDeque.size() > 29)
 	{
-		undoRedo.pop();
+		undoDeque.pop_back();
 	}
 
-	std::vector<std::vector<int>>tempLayer;
-	tempLayer.resize(mapSize.x);
-	for (int i = 0; i < mapSize.x; i++)
-	{
-		tempLayer[i].resize(mapSize.y);
-	}
+	std::vector<int> temp;
+	temp.push_back(x);
+	temp.push_back(y);
+	temp.push_back(currentLayerNumber);
+	temp.push_back(map->getTextureNumber(x, y, currentLayerNumber));
+	undoDeque.push_front(temp);
 
-	for (int j = 0; j < mapSize.y; j++)
+	while (redoDeque.size() != 0)
 	{
-		for (int i = 0; i < mapSize.x; i++)
-		{
-			tempLayer[i][j] = map->getTextureNumber(i, j, currentLayerNumber);
-		}
+		redoDeque.pop_front();
 	}
-	undoRedo.push(tempLayer);
 }
 
-void MapEditor::undo()
+void MapEditor::undoOrRedo(bool undo)
 {
-	if (undoRedo.size() > 0)
+	if (undoDeque.size() > 0 && undo == true || redoDeque.size() > 0 && undo == false)
 	{
-		std::vector<std::vector<int>>tempLayer;
-		tempLayer.resize(mapSize.x);
-		for (int i = 0; i < mapSize.x; i++)
+		std::vector<int> temp;
+		int tile;
+
+		if (undo == true)
 		{
-			tempLayer[i].resize(mapSize.y);
+			temp = undoDeque[0];
+			undoDeque.pop_front();
+		}
+		else
+		{
+			temp = redoDeque[0];
+			redoDeque.pop_front();
 		}
 
-		tempLayer = undoRedo.top();
-		undoRedo.pop();
+		tile = map->getTextureNumber(temp[0], temp[1], temp[2]);
+		map->setTextureRect(temp[0], temp[1], temp[2], temp[3]);
+		updateLayer();
 
-		for (int j = 0; j < mapSize.y; j++)
+		if (undo == true)
 		{
-			for (int i = 0; i < mapSize.x; i++)
-			{
-				map->setTextureRect(i, j, currentLayerNumber, tempLayer[i][j]);
-			}
+			temp[3] = tile;
+			redoDeque.push_front(temp);
+		}
+		else
+		{
+			temp[3] = tile;
+			undoDeque.push_front(temp);
 		}
 	}
 }

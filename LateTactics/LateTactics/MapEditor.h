@@ -25,8 +25,8 @@ public:
 	void copyLayer();
 	void paintBucket(int x, int y, int tool);
 	void saveMap();
-	void pushToStack();
-	void undo();
+	void storeToStack(int x, int y);
+	void undoOrRedo(bool undo);
 
 private:
 	Map *map;
@@ -42,7 +42,7 @@ private:
 	std::vector<sf::Sprite> toolBar, fileToolBar, paintToolBar;
 	std::vector<sf::RectangleShape> layersShownBoxes;
 	std::vector<std::vector<sf::Sprite>> currentLayer, lowerLayer;
-	std::stack<std::vector<std::vector<int>>> undoRedo;
+	std::deque<std::vector<int>> undoDeque, redoDeque;
 };
 
 #endif
