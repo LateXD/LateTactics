@@ -30,7 +30,7 @@ public:
 
 private:
 	Map *map;
-	bool showLowerLayer = false;
+	bool onionSkin = false;
 	int currentLayerNumber = 0, layersShown, spriteNum, currentTool = 1, currentPaintTool = 1, numberOfPaintTools = 5, numberOfFileTools = 7;
 	sf::Vector2f mouse;
 	sf::Vector2i viewZooms = { 0, 0 };

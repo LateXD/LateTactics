@@ -363,13 +363,13 @@ void MapEditor::handleInput()
 					}
 					else if (i == 3)
 					{
-						if (showLowerLayer == true)
+						if (onionSkin == true)
 						{
-							showLowerLayer = false;
+							onionSkin = false;
 						}					
 						else
 						{
-							showLowerLayer = true;
+							onionSkin = true;
 						}
 					}
 					else if (i == 4)
@@ -429,11 +429,11 @@ void MapEditor::draw(const float dt)
 	{
 		for (int j = 0; j < map->getMapSize().y; j++)
 		{
-			game->window.draw(currentLayer[i][j]);
-			if (currentLayerNumber != 0 && showLowerLayer == true)
+			if (currentLayerNumber != 0 && onionSkin == true)
 			{
 				game->window.draw(lowerLayer[i][j]);
 			}
+			game->window.draw(currentLayer[i][j]);
 		}
 	}
 
@@ -479,7 +479,7 @@ void MapEditor::updateLayer() // Updates the layer, used while initializing and 
 			if (currentLayerNumber != 0)
 			{
 				lowerLayer[i][j].setTextureRect(map->getTextureRect(i, j, currentLayerNumber - 1));
-				lowerLayer[i][j].setColor(sf::Color(255, 255, 255, 150));
+				lowerLayer[i][j].setColor(sf::Color(255, 255, 255, 75));
 			}
 		}
 	}
@@ -496,7 +496,7 @@ void MapEditor::switchLayer() // Switches to next layer
 			if (currentLayerNumber != 0)
 			{
 				lowerLayer[i][j].setTextureRect(map->getTextureRect(i, j, currentLayerNumber - 1));
-				lowerLayer[i][j].setColor(sf::Color(255, 255, 255, 150));
+				lowerLayer[i][j].setColor(sf::Color(255, 255, 255, 75));
 			}
 		}
 	}
