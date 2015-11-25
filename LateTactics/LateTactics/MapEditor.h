@@ -5,6 +5,8 @@
 #include "Map.h"
 
 #include <fstream>
+#include <stack>
+
 
 class MapEditor : public GameState
 {
@@ -23,21 +25,24 @@ public:
 	void copyLayer();
 	void paintBucket(int x, int y, int tool);
 	void saveMap();
+	void pushToStack();
+	void undo();
 
 private:
 	Map *map;
 	bool showLowerLayer = false;
-	int currentLayerNumber = 0, layersShown, spriteNum, currentTool = 1, currentPaintTool = 1, numberOfPaintTools = 3, numberOfFileTools = 4;
+	int currentLayerNumber = 0, layersShown, spriteNum, currentTool = 1, currentPaintTool = 1, numberOfPaintTools = 5, numberOfFileTools = 7;
 	sf::Vector2f mouse;
 	sf::Vector2i viewZooms = { 0, 0 };
 	sf::Vector3i mapSize = { 30, 30, 30 }; // Keep mapSize.x and mapSize.y as the same number to avoid problems with rotation
-	sf::RectangleShape currentToolMark, currentPaintToolMark, layersShownBox, tileToolBackground;
-	sf::Sprite hiddenTile, topTile, bottomTile, tileBox, paintTools, fileTool;
+	sf::RectangleShape currentToolMark, layersShownBox, tileToolBackground;
+	sf::Sprite hiddenTile, topTile, bottomTile, tileBox, paintTool, fileTool;
 	sf::Texture texture, paintToolTexture, fileToolTexture;
 	sf::View isometricView, layerView, interfaceView;
-	std::vector<sf::Sprite> toolBar, fileToolBar;
+	std::vector<sf::Sprite> toolBar, fileToolBar, paintToolBar;
 	std::vector<sf::RectangleShape> layersShownBoxes;
 	std::vector<std::vector<sf::Sprite>> currentLayer, lowerLayer;
+	std::stack<std::vector<std::vector<int>>> undoRedo;
 };
 
 #endif

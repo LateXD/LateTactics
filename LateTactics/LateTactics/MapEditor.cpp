@@ -106,12 +106,16 @@ void MapEditor::onInitialize()
 	// Making of paint tool toolbar
 	//-------------------------
 	paintToolTexture.loadFromFile("..\\Graphics\\PaintTools.png");
-	paintTools.setTexture(paintToolTexture);
-	paintTools.setScale(2, 2);
-	paintTools.setPosition(game->window.getSize().x - paintTools.getGlobalBounds().width, 0);
-	currentPaintToolMark.setSize(sf::Vector2f(paintTools.getGlobalBounds().width, paintTools.getGlobalBounds().height / numberOfPaintTools));
-	currentPaintToolMark.setFillColor(sf::Color(50,50,50,50));
-	currentPaintToolMark.setPosition(paintTools.getPosition().x, paintTools.getPosition().y);
+	paintTool.setTexture(paintToolTexture);
+	paintTool.scale(2, 2);
+	paintTool.setPosition(game->window.getSize().x - paintTool.getGlobalBounds().width / numberOfPaintTools, 0);
+	for (int i = 0; i < numberOfPaintTools; i++)
+	{
+		paintTool.setTextureRect(sf::IntRect(paintToolTexture.getSize().x / numberOfPaintTools * i, 0, paintToolTexture.getSize().x / numberOfPaintTools, paintToolTexture.getSize().y));
+		paintToolBar.push_back(paintTool);
+		paintTool.move(0, paintTool.getGlobalBounds().height);
+	}
+	paintToolBar[0].setColor(sf::Color(200, 200, 200, 255));
 
 	// Making of the bar that shows which layers are currently visible
 	//-------------------------
@@ -144,31 +148,7 @@ void MapEditor::handleInput()
 	//-------------------------
 	if (game->event.type == sf::Event::KeyPressed)
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		{
-			map->rotateMapCounterClockwise();
-			updateLayer();
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		{
-			map->rotateMapClockwise();
-			updateLayer();
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C) && currentLayerNumber < mapSize.z - 1)
-		{
-			copyLayer();
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && viewZooms.x < 3)
-		{
-			isometricView.zoom(0.5);
-			viewZooms.x++;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::X) && viewZooms.x > 0)
-		{
-			isometricView.zoom(2);
-			viewZooms.x--;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::N) && viewZooms.y < 3)
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::N) && viewZooms.y < 3)
 		{
 			layerView.zoom(0.5);
 			viewZooms.y++;
@@ -177,14 +157,6 @@ void MapEditor::handleInput()
 		{
 			layerView.zoom(2);
 			viewZooms.y--;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-		{
-			showLowerLayer = true;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-		{
-			showLowerLayer = false;
 		}
 	}
 
@@ -278,6 +250,7 @@ void MapEditor::handleInput()
 						paintBucket(i, j, 0);
 					}
 				}
+				pushToStack();
 			}
 		}
 	}
@@ -324,18 +297,39 @@ void MapEditor::handleInput()
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
-		if (mouse.x > paintTools.getPosition().x && mouse.x < paintTools.getPosition().x + paintTools.getGlobalBounds().width &&
-			mouse.y > paintTools.getPosition().y && mouse.y < paintTools.getPosition().y + paintTools.getGlobalBounds().height / numberOfPaintTools)
+		for (int i = 0; i < numberOfPaintTools; i++)
 		{
-			currentPaintTool = 1;
-			currentPaintToolMark.setPosition(paintTools.getPosition().x, paintTools.getPosition().y);
-		}
-		else if (mouse.x > paintTools.getPosition().x && mouse.x < paintTools.getPosition().x + paintTools.getGlobalBounds().width &&
-			mouse.y > paintTools.getPosition().y + paintTools.getGlobalBounds().height / numberOfPaintTools && mouse.y < paintTools.getPosition().y + paintTools.getGlobalBounds().height)
-		{
-			currentPaintTool = 2;
-			currentPaintToolMark.setPosition(paintTools.getPosition().x, paintTools.getPosition().y + paintTools.getGlobalBounds().height / numberOfPaintTools);
-		}
+			if (mouse.x > paintToolBar[i].getPosition().x && mouse.x < paintToolBar[i].getPosition().x + paintToolBar[i].getGlobalBounds().width &&
+				mouse.y > paintToolBar[i].getPosition().y && mouse.y < paintToolBar[i].getPosition().y + paintToolBar[i].getGlobalBounds().height)
+			{
+				if (i == 0)
+				{
+					currentPaintTool = 1;
+					paintToolBar[0].setColor(sf::Color(200, 200, 200, 255));
+					paintToolBar[1].setColor(sf::Color::White);
+				}
+				else if (i == 1)
+				{
+					currentPaintTool = 2;
+					paintToolBar[1].setColor(sf::Color(200, 200, 200, 255));
+					paintToolBar[0].setColor(sf::Color::White);
+				}
+				else if (i == 2 && currentLayerNumber < mapSize.z - 1)
+				{
+					copyLayer();
+				}
+				else if (i == 3)
+				{
+					map->rotateMapCounterClockwise();
+					updateLayer();
+				}
+				else if (i == 4)
+				{
+					map->rotateMapClockwise();
+					updateLayer();
+				}
+			}
+		}	
 	}
 
 	if (game->event.type == sf::Event::MouseButtonPressed)
@@ -365,6 +359,27 @@ void MapEditor::handleInput()
 					}
 					else if (i == 3)
 					{
+						if (showLowerLayer == true)
+						{
+							showLowerLayer = false;
+						}					
+						else
+						{
+							showLowerLayer = true;
+						}
+					}
+					else if (i == 4)
+					{
+						undo();
+						updateLayer();
+					}
+					else if (i == 5)
+					{
+						map->rotateMapClockwise();
+						updateLayer();
+					}
+					else if (i == 6)
+					{
 						delete map;
 						game->popState();
 					}
@@ -376,7 +391,7 @@ void MapEditor::handleInput()
 
 void MapEditor::update(const float dt)
 {
-	
+
 }
 
 void MapEditor::draw(const float dt)
@@ -433,8 +448,6 @@ void MapEditor::draw(const float dt)
 		game->window.draw(toolBar[i]);
 	}
 	game->window.draw(currentToolMark);
-	game->window.draw(paintTools);
-	game->window.draw(currentPaintToolMark);
 
 	for (int i = 0; i < layersShownBoxes.size(); i++)
 	{
@@ -444,6 +457,11 @@ void MapEditor::draw(const float dt)
 	for (int i = 0; i < numberOfFileTools; i++)
 	{
 		game->window.draw(fileToolBar[i]);
+	}
+
+	for (int i = 0; i < numberOfPaintTools; i++)
+	{
+		game->window.draw(paintToolBar[i]);
 	}
 }
 
@@ -455,6 +473,12 @@ void MapEditor::updateLayer() // Updates the layer, used while initializing and 
 		{
 			currentLayer[i][j] = map->getSprite(i, j, currentLayerNumber);
 			currentLayer[i][j].setPosition(i * (currentLayer[i][j].getGlobalBounds().width + 1), j * (currentLayer[i][j].getGlobalBounds().height + 1));
+
+			if (currentLayerNumber != 0)
+			{
+				lowerLayer[i][j].setTextureRect(map->getTextureRect(i, j, currentLayerNumber - 1));
+				lowerLayer[i][j].setColor(sf::Color(255, 255, 255, 150));
+			}
 		}
 	}
 }
@@ -466,10 +490,11 @@ void MapEditor::switchLayer() // Switches to next layer
 		for (int i = 0; i < mapSize.x; i++)
 		{
 			currentLayer[i][j].setTextureRect(map->getTextureRect(i, j, currentLayerNumber));
+
 			if (currentLayerNumber != 0)
 			{
 				lowerLayer[i][j].setTextureRect(map->getTextureRect(i, j, currentLayerNumber - 1));
-				lowerLayer[i][j].setColor(sf::Color(255, 255, 255, 100));
+				lowerLayer[i][j].setColor(sf::Color(255, 255, 255, 150));
 			}
 		}
 	}
@@ -559,5 +584,53 @@ void MapEditor::saveMap() // Saves the map info into a text file
 	else
 	{
 		std::cout << "Map file couldn't be loaded." << std::endl;
+	}
+}
+
+void MapEditor::pushToStack()
+{
+	if (undoRedo.size() > 9)
+	{
+		undoRedo.pop();
+	}
+
+	std::vector<std::vector<int>>tempLayer;
+	tempLayer.resize(mapSize.x);
+	for (int i = 0; i < mapSize.x; i++)
+	{
+		tempLayer[i].resize(mapSize.y);
+	}
+
+	for (int j = 0; j < mapSize.y; j++)
+	{
+		for (int i = 0; i < mapSize.x; i++)
+		{
+			tempLayer[i][j] = map->getTextureNumber(i, j, currentLayerNumber);
+		}
+	}
+	undoRedo.push(tempLayer);
+}
+
+void MapEditor::undo()
+{
+	if (undoRedo.size() > 0)
+	{
+		std::vector<std::vector<int>>tempLayer;
+		tempLayer.resize(mapSize.x);
+		for (int i = 0; i < mapSize.x; i++)
+		{
+			tempLayer[i].resize(mapSize.y);
+		}
+
+		tempLayer = undoRedo.top();
+		undoRedo.pop();
+
+		for (int j = 0; j < mapSize.y; j++)
+		{
+			for (int i = 0; i < mapSize.x; i++)
+			{
+				map->setTextureRect(i, j, currentLayerNumber, tempLayer[i][j]);
+			}
+		}
 	}
 }
