@@ -86,7 +86,7 @@ void MapEditor::onInitialize()
 	currentToolMark.setPosition(toolBar[currentTool].getPosition());
 
 	tileToolBackground.setSize(sf::Vector2f(toolBar.size() * (toolBar[0].getGlobalBounds().width + 2) - 2, toolBar[0].getGlobalBounds().height * 2));
-	tileToolBackground.setFillColor(sf::Color(240, 240, 240, 255));
+	tileToolBackground.setFillColor(sf::Color(230, 230, 230, 255));
 	tileToolBackground.setPosition(toolBar[0].getPosition());
 	tileToolBackground.setOutlineThickness(2);
 	tileToolBackground.setOutlineColor(sf::Color::Black);
@@ -429,7 +429,7 @@ void MapEditor::draw(const float dt)
 	{
 		for (int j = 0; j < map->getMapSize().y; j++)
 		{
-			if (currentLayerNumber != 0 && onionSkin == true)
+			if (currentLayerNumber != 0 && onionSkin == true && map->getTextureNumber(i, j, currentLayerNumber) == 0)
 			{
 				game->window.draw(lowerLayer[i][j]);
 			}
