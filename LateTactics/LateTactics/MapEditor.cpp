@@ -144,22 +144,6 @@ void MapEditor::onInitialize()
 
 void MapEditor::handleInput()
 {
-	// Keyboard commands
-	//-------------------------
-	if (game->event.type == sf::Event::KeyPressed)
-	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::N) && viewZooms.y < 3)
-		{
-			layerView.zoom(0.5);
-			viewZooms.y++;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::M) && viewZooms.y > 0)
-		{
-			layerView.zoom(2);
-			viewZooms.y--;
-		}
-	}
-
 	// Mouse commands
 	//-------------------------
 	if (game->event.type == sf::Event::MouseWheelMoved)
@@ -179,22 +163,46 @@ void MapEditor::handleInput()
 		}
 		else
 		{
-			if (game->event.mouseWheel.delta == 1 && currentLayerNumber < mapSize.z - 1)
+			if (zoomCurrentLayer == false)
 			{
-				currentLayerNumber++;
-				switchLayer();
+				if (game->event.mouseWheel.delta == 1 && currentLayerNumber < mapSize.z - 1)
+				{
+					currentLayerNumber++;
+					switchLayer();
+				}
+				else if (game->event.mouseWheel.delta == -1 && currentLayerNumber > 0)
+				{
+					currentLayerNumber--;
+					switchLayer();
+				}
 			}
-			else if (game->event.mouseWheel.delta == -1 && currentLayerNumber > 0)
+			else
 			{
-				currentLayerNumber--;
-				switchLayer();
+				if (game->event.mouseWheel.delta == 1 && viewZooms.y < 3)
+				{
+					layerView.zoom(0.5);
+					viewZooms.y++;
+				}
+				else if (game->event.mouseWheel.delta == -1 && viewZooms.y > 0)
+				{
+					layerView.zoom(2);
+					viewZooms.y--;
+				}
 			}
 		}
 	}
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
 	{
-		emptyLayer();
+		if (zoomCurrentLayer == true)
+		{
+			zoomCurrentLayer = false;
+		}
+		else
+		{
+			zoomCurrentLayer = true;
+		}
+
 	}
 
 	// Mouse movements on layerview area
@@ -324,10 +332,14 @@ void MapEditor::handleInput()
 				}
 				else if (i == 3)
 				{
+					emptyLayer();
+				}
+				else if (i == 4)
+				{
 					map->rotateMapCounterClockwise();
 					updateLayer();
 				}
-				else if (i == 4)
+				else if (i == 5)
 				{
 					map->rotateMapClockwise();
 					updateLayer();
