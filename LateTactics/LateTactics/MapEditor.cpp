@@ -556,7 +556,7 @@ void MapEditor::copyLayer() // Copies the current layer to the layer above it
 	{
 		for (int i = 0; i < mapSize.x; i++)
 		{
-			map->setTextureRect(i, j, currentLayerNumber, map->getTextureNumber(i ,j ,currentLayerNumber));
+			map->setTextureRect(i, j, currentLayerNumber + 1, map->getTextureNumber(i ,j ,currentLayerNumber));
 		}
 	}
 	currentLayerNumber++;
