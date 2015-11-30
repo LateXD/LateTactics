@@ -519,7 +519,7 @@ void MapEditor::switchLayer() // Switches to next layer
 		}
 	}
 
-	if (testi == true)
+	if (switchedLayer == true)
 	{
 		undoRedoDeque.pop_front();
 		undoRedoLayer.pop_front();
@@ -535,7 +535,7 @@ void MapEditor::switchLayer() // Switches to next layer
 
 	undoRedoDeque.push_front(layerChanges);
 	undoRedoLayer.push_front(currentLayerNumber);
-	testi = true;
+	switchedLayer = true;
 }
 
 void MapEditor::emptyLayer() // Empties the current layer
@@ -556,7 +556,7 @@ void MapEditor::copyLayer() // Copies the current layer to the layer above it
 	{
 		for (int i = 0; i < mapSize.x; i++)
 		{
-			map->setTextureRect(i, j, currentLayerNumber + 1, map->getTextureNumber(i ,j ,currentLayerNumber));
+			map->setTextureRect(i, j, currentLayerNumber, map->getTextureNumber(i ,j ,currentLayerNumber));
 		}
 	}
 	currentLayerNumber++;
@@ -630,7 +630,7 @@ void MapEditor::pushToDeque()
 	std::deque<std::vector<std::vector<int>>>tempDeque;
 	std::deque<int>tempLayerNumber;
 
-	testi = false;
+	switchedLayer = false;
 
 	while (currentUndo > 0)
 	{
@@ -645,10 +645,6 @@ void MapEditor::pushToDeque()
 		undoRedoDeque.pop_front();
 		undoRedoLayer.pop_front();
 		currentUndo--;
-		if (undoRedoDeque.size() == 1)
-		{
-			break;
-		}
 	}
 	if (tempDeque.size() != 0)
 	{
@@ -706,7 +702,7 @@ void MapEditor::undo()
 
 void MapEditor::redo()
 {
-	if (currentUndo - 1 > 0)
+	if (currentUndo > 0)
 	{
 		bool changesOnLayer = true;
 		while (changesOnLayer == true)

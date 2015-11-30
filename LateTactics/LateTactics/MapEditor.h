@@ -31,7 +31,7 @@ public:
 
 private:
 	Map *map;
-	bool onionSkin = false, zoomCurrentLayer = false, mapChanged = true, testi = false;
+	bool onionSkin = false, zoomCurrentLayer = false, mapChanged = true, switchedLayer = false;
 	int currentLayerNumber = 0, layersShown, spriteNum, currentTool = 1, currentPaintTool = 1, numberOfPaintTools = 6, numberOfFileTools = 7, currentUndo = 0;
 	sf::Vector2f mouse;
 	sf::Vector2i viewZooms = { 0, 0 };
