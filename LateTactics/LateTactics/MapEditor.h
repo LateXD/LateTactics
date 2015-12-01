@@ -28,11 +28,12 @@ public:
 	void pushToDeque();
 	void undo();
 	void redo();
+	void rotateToUndo(bool rotated);
 
 private:
 	Map *map;
 	bool onionSkin = false, zoomCurrentLayer = false, mapChanged = true, switchedLayer = false;
-	int currentLayerNumber = 0, layersShown, spriteNum, currentTool = 1, currentPaintTool = 1, numberOfPaintTools = 6, numberOfFileTools = 7, currentUndo = 0;
+	int currentLayerNumber = 0, layersShown, spriteNum, currentTool = 1, currentPaintTool = 1, numberOfPaintTools = 6, numberOfFileTools = 7, currentUndo = 0, currentRotation = 0, rotation = 0;
 	sf::Vector2f mouse;
 	sf::Vector2i viewZooms = { 0, 0 };
 	sf::Vector3i mapSize = { 30, 30, 30 }; // Keep mapSize.x and mapSize.y as the same number to avoid problems with rotation

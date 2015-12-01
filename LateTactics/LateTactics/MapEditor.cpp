@@ -344,11 +344,23 @@ void MapEditor::handleInput()
 				{
 					map->rotateMapCounterClockwise();
 					updateLayer();
+
+					rotation--;
+					if (rotation < 0)
+					{
+						rotation = 3;
+					}
 				}
 				else if (i == 5)
 				{
 					map->rotateMapClockwise();
 					updateLayer();
+
+					rotation++;
+					if (rotation > 3)
+					{
+						rotation = 0;
+					}
 				}
 			}
 		}	
@@ -548,19 +560,22 @@ void MapEditor::emptyLayer() // Empties the current layer
 			currentLayer[i][j].setTextureRect(sf::IntRect(0 * map->getPictureSize().x, 0, map->getPictureSize().x, map->getPictureSize().y));
 		}
 	}
+	pushToDeque();
 }
 
 void MapEditor::copyLayer() // Copies the current layer to the layer above it
 {
+	currentLayerNumber++;
+	switchLayer();
 	for (int j = 0; j < mapSize.y; j++)
 	{
 		for (int i = 0; i < mapSize.x; i++)
 		{
-			map->setTextureRect(i, j, currentLayerNumber + 1, map->getTextureNumber(i ,j ,currentLayerNumber));
+			map->setTextureRect(i, j, currentLayerNumber, map->getTextureNumber(i ,j ,currentLayerNumber - 1));
 		}
 	}
-	currentLayerNumber++;
-	switchLayer();
+	updateLayer();
+	pushToDeque();
 }
 
 void MapEditor::paintBucket(int x, int y, int tool) // Works like paint bucket tool in softwares like Paint
@@ -658,6 +673,8 @@ void MapEditor::pushToDeque()
 		}
 	}
 
+	rotateToUndo(false);
+
 	for (int i = 0; i < map->getMapSize().x; i++)
 	{
 		for (int j = 0; j < map->getMapSize().y; j++)
@@ -669,6 +686,8 @@ void MapEditor::pushToDeque()
 	undoRedoDeque.push_front(layerChanges);
 	undoRedoLayer.push_front(currentLayerNumber);
 	mapChanged = false;
+
+	rotateToUndo(true);
 }
 
 void MapEditor::undo()
@@ -676,6 +695,8 @@ void MapEditor::undo()
 	if (currentUndo < undoRedoDeque.size())
 	{
 		bool changesOnLayer = true;
+
+		rotateToUndo(false);
 		while (changesOnLayer == true)
 		{
 			for (int i = 0; i < map->getMapSize().x; i++)
@@ -696,6 +717,8 @@ void MapEditor::undo()
 				break;
 			}
 		}
+
+		rotateToUndo(true);
 		updateLayer();
 	}
 }
@@ -705,6 +728,8 @@ void MapEditor::redo()
 	if (currentUndo > 0)
 	{
 		bool changesOnLayer = true;
+
+		rotateToUndo(false);
 		while (changesOnLayer == true)
 		{
 			currentUndo--;
@@ -725,6 +750,37 @@ void MapEditor::redo()
 				}
 			}
 		}
+
+		rotateToUndo(true);
 		updateLayer();
+	}
+}
+
+void MapEditor::rotateToUndo(bool rotated)
+{
+	if (rotated == false)
+	{
+		currentRotation = rotation;
+		while (rotation != 0)
+		{
+			map->rotateMapClockwise();
+			rotation++;
+			if (rotation > 3)
+			{
+				rotation = 0;
+			}
+		}
+	}
+	else
+	{
+		while (rotation != currentRotation)
+		{
+			map->rotateMapClockwise();
+			rotation++;
+			if (rotation > 3)
+			{
+				rotation = 0;
+			}
+		}
 	}
 }
