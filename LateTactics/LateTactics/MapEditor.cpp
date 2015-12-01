@@ -763,12 +763,8 @@ void MapEditor::rotateToUndo(bool rotated)
 		currentRotation = rotation;
 		while (rotation != 0)
 		{
-			map->rotateMapClockwise();
-			rotation++;
-			if (rotation > 3)
-			{
-				rotation = 0;
-			}
+			map->rotateMapCounterClockwise();
+			rotation--;
 		}
 	}
 	else
@@ -777,10 +773,6 @@ void MapEditor::rotateToUndo(bool rotated)
 		{
 			map->rotateMapClockwise();
 			rotation++;
-			if (rotation > 3)
-			{
-				rotation = 0;
-			}
 		}
 	}
 }
