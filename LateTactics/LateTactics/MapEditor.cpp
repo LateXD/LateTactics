@@ -531,6 +531,8 @@ void MapEditor::switchLayer() // Switches to next layer
 		}
 	}
 
+	rotateToUndo(false);
+
 	if (switchedLayer == true)
 	{
 		undoRedoDeque.pop_front();
@@ -547,7 +549,9 @@ void MapEditor::switchLayer() // Switches to next layer
 
 	undoRedoDeque.push_front(layerChanges);
 	undoRedoLayer.push_front(currentLayerNumber);
+
 	switchedLayer = true;
+	rotateToUndo(true);
 }
 
 void MapEditor::emptyLayer() // Empties the current layer
@@ -647,7 +651,7 @@ void MapEditor::pushToDeque()
 
 	switchedLayer = false;
 
-	while (currentUndo > 0)
+	while (currentUndo > 1)
 	{
 		if (undoRedoLayer[0] != undoRedoLayer[1])
 		{
@@ -692,10 +696,9 @@ void MapEditor::pushToDeque()
 
 void MapEditor::undo()
 {
-	if (currentUndo < undoRedoDeque.size())
+	if (currentUndo <= undoRedoDeque.size())
 	{
 		bool changesOnLayer = true;
-
 		rotateToUndo(false);
 		while (changesOnLayer == true)
 		{
@@ -717,7 +720,6 @@ void MapEditor::undo()
 				break;
 			}
 		}
-
 		rotateToUndo(true);
 		updateLayer();
 	}
@@ -728,7 +730,6 @@ void MapEditor::redo()
 	if (currentUndo > 0)
 	{
 		bool changesOnLayer = true;
-
 		rotateToUndo(false);
 		while (changesOnLayer == true)
 		{
@@ -750,7 +751,6 @@ void MapEditor::redo()
 				}
 			}
 		}
-
 		rotateToUndo(true);
 		updateLayer();
 	}

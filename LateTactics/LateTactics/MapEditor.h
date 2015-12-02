@@ -36,7 +36,7 @@ private:
 	int currentLayerNumber = 0, layersShown, spriteNum, currentTool = 1, currentPaintTool = 1, numberOfPaintTools = 6, numberOfFileTools = 7, currentUndo = 0, currentRotation = 0, rotation = 0;
 	sf::Vector2f mouse;
 	sf::Vector2i viewZooms = { 0, 0 };
-	sf::Vector3i mapSize = { 30, 30, 30 }; // Keep mapSize.x and mapSize.y as the same number to avoid problems with rotation
+	sf::Vector3i mapSize = { 20, 20, 20 }; // Keep mapSize.x and mapSize.y as the same number to avoid problems with rotation
 	sf::RectangleShape currentToolMark, layersShownBox, tileToolBackground;
 	sf::Sprite hiddenTile, topTile, bottomTile, tileBox, paintTool, fileTool;
 	sf::Texture texture, paintToolTexture, fileToolTexture;
