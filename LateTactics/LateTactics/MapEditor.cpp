@@ -651,7 +651,7 @@ void MapEditor::pushToDeque()
 
 	switchedLayer = false;
 
-	while (currentUndo > 1)
+	while (currentUndo > 1 || undoRedoDeque.size() == 2)
 	{
 		if (undoRedoLayer[0] != undoRedoLayer[1])
 		{
