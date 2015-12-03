@@ -651,7 +651,7 @@ void MapEditor::pushToDeque()
 
 	switchedLayer = false;
 
-	while (currentUndo > 1 || undoRedoDeque.size() == 2)
+	while (currentUndo > 0)
 	{
 		if (undoRedoLayer[0] != undoRedoLayer[1])
 		{
@@ -664,6 +664,10 @@ void MapEditor::pushToDeque()
 		undoRedoDeque.pop_front();
 		undoRedoLayer.pop_front();
 		currentUndo--;
+		if (currentUndo % 2)
+		{
+			currentUndo--;
+		}
 	}
 	if (tempDeque.size() != 0)
 	{
